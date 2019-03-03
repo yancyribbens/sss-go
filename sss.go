@@ -42,7 +42,7 @@ import (
 
 // CreateShares splits secret `data` into `n` shares, requiring `k` shares for
 // restoring the original secret.
-// `data` must be a buffer of exactly 64 bytes.
+// `data` must be a buffer of up to 4096 bytes.
 // `n` and `k` must be numbers from 1 to 255 (inclusive).
 // `k` may not be larger than `n`, as this would make it impossible to
 // restore the secret.
@@ -52,10 +52,11 @@ import (
 // `nil`, `shares` will be a slice of share bufs which are each exactly 113
 // bytes long.
 func CreateShares(data []byte, count int, threshold int) ([][]byte, error) {
-	if len(data) != C.sss_MLEN {
-		msg := fmt.Sprintf("`data` must be %d bytes long", C.sss_MLEN)
+	if len(data) > C.sss_VARIABLE_MAX_MLEN {
+		msg := fmt.Sprintf("`data` must be no longer than %d bytes long", C.sss_VARIABLE_MAX_MLEN)
 		return nil, errors.New(msg)
 	}
+
 	if err := checkNK(count, threshold); err != nil {
 		return nil, err
 	}

@@ -7,16 +7,24 @@ import (
 	"testing/quick"
 )
 
-func makeData(c byte) []byte {
-	data := make([]byte, 64)
+func makeData(c byte, length int) []byte {
+	data := make([]byte, length)
 	for i := range data {
 		data[i] = c
 	}
 	return data
 }
 
+func testCreateSharesMaxMsgLength(t *testing.T) {
+	data := makeData(42, 4097)
+	_, err := CreateShares(data, 5, 4)
+	if err.Error() != "`data` must be no longer than 4096 bytes long" {
+		t.Fail()
+	}
+}
+
 func TestCreateShares(t *testing.T) {
-	data := makeData(42)
+	data := makeData(42, 1)
 	shares, err := CreateShares(data, 5, 4)
 	if err != nil {
 		t.Fail()
@@ -73,14 +81,14 @@ func TestCombineShares(t *testing.T) {
 }
 
 func BenchmarkCreateShares(b *testing.B) {
-	data := makeData(42)
+	data := makeData(42, 1)
 	for i := 0; i < b.N; i++ {
 		CreateShares(data, 5, 4)
 	}
 }
 
 func BenchmarkCombineShares(b *testing.B) {
-	data := makeData(42)
+	data := makeData(42, 1)
 	shares, err := CreateShares(data, 5, 4)
 	if err != nil {
 		b.Error()

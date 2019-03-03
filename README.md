@@ -23,7 +23,7 @@ go get github.com/dsprenkels/sss-go
 
 ## Usage
 
-Secrets are provided as `[]byte` slices with a length of 64. Shares are
+Secrets are provided as `[]byte` slices with a length up to 4096. Shares are
 generated from secret data using `sss.CreateShares` and shares can be combined
 again using the `sss.CombineShares` function. Shares are always 113 bytes long
 and `sss.CombineShares` will return an error if one of the given shares is of
@@ -39,7 +39,7 @@ import (
 
 func main() {
     // Make a new slice of secret data [42, ..., 42]
-    data := make([]byte, 64)
+    data := make([]byte, 4096)
     for i, _ := range data {
         data[i] = 42
     }
